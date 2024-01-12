@@ -1,0 +1,126 @@
+.title {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.user-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.user-info span {
+  margin-right: 10px;
+  font-size: 1em;
+  color: #333;
+}
+
+.user-info button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.user-info button:hover {
+  background-color: #d32f2f;
+}
+
+.register-form {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.register-form input {
+  margin: 0 10px;
+}
+
+.device-list-container {
+  padding: 20px;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+}
+
+.title {
+  text-align: center;
+  text-transform: uppercase;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.user-info {
+  position: relative; /* changed from absolute for better responsiveness */
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* align items to the right */
+}
+
+/* ... existing .user-info styles */
+
+.register-form {
+  margin-top: 20px;
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ... existing .register-form styles */
+
+.device-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.device-table th,
+.device-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.navigate-crusher-control {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 20px;
+}
+
+.navigate-crusher-control:hover {
+  background-color: #45a049;
+}
+.control-buttons {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.control-buttons button {
+  background-color: #008cba;
+  color: white;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.control-buttons button:hover {
+  background-color: #007b9a;
+}

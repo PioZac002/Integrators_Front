@@ -23,12 +23,42 @@ function DeviceList() {
   const [selectedGroupID, setSelectedGroupID] = useState('');
   const [showCreateGroupForm, setShowCreateGroupForm] = useState(false);
   const [integratorGroupName, setIntegratorGroupName] = useState('');
+  const [showAddWorkerToGroupForm, setShowAddWorkerToGroupForm] =
+    useState(false);
+  const [selectedWorkerID, setSelectedWorkerID] = useState('');
+  const [integratorGroups, setIntegratorGroups] = useState([]);
   const [workers, setWorkers] = useState([]);
-  const [isManager, setIsManager] = useState(false);
-  const [showManageUsersForm, setShowManageUsersForm] = useState(false);
 
   // Funkcje, które już są
 
+  const fetchWorkers = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.getWorkersEndpoint, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (response.status === 200 && response.data.workers) {
+        setWorkers(response.data.workers);
+      }
+    } catch (error) {
+      console.error('Błąd podczas pobierania pracowników:', error);
+    }
+  };
+
+  const fetchIntegratorGroups = async () => {
+    try {
+      const response = await axios.get(
+        API_ENDPOINTS.getIntegratorGroupEndpoint,
+        {
+          headers: { From: userID, 'Content-Type': 'application/json' },
+        }
+      );
+      if (response.status === 200 && response.data.integratorGroups) {
+        setIntegratorGroups(response.data.integratorGroups);
+      }
+    } catch (error) {
+      console.error('Błąd podczas pobierania grup integratorów:', error);
+    }
+  };
   const handleCreateGroup = async () => {
     if (!integratorGroupName) {
       alert('Podaj nazwę grupy integratorów');
@@ -63,9 +93,25 @@ function DeviceList() {
       alert('Proszę wybrać integratora i grupę');
       return;
     }
+    // Find the selected device
+    const selectedDevice = devices.find(
+      (device) => device.PK === selectedIntegratorID
+    );
+
+    // Check if the selected device is already in a group
+    // Sprawdź, czy wybrany integrator jest już w grupie
+    if (selectedDevice && selectedDevice.integratorGroup) {
+      const groupName = integratorGroups.find(
+        (group) => group.PK === selectedDevice.integratorGroup
+      )?.integratorGroupName;
+      if (groupName) {
+        alert(`Ten integrator należy już do grupy: ${groupName}`);
+        return;
+      }
+    }
 
     try {
-      const response = await axios.post(
+      const response = await axios.put(
         API_ENDPOINTS.addIntegratorToGroupEndpoint,
         JSON.stringify({
           integratorID: selectedIntegratorID,
@@ -85,6 +131,37 @@ function DeviceList() {
     } catch (error) {
       console.error('Błąd podczas dodawania integratora do grupy:', error);
       alert('Nie udało się dodać integratora do grupy');
+    }
+  };
+  const handleAddWorkerToGroup = async () => {
+    if (!selectedWorkerID || !selectedGroupID) {
+      alert('Proszę wybrać pracownika i grupę');
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        'https://jfhnwg5jfl.execute-api.eu-central-1.amazonaws.com/prod/editUser',
+        JSON.stringify({
+          integratorGroupID: selectedGroupID,
+          userID: userID,
+          addedUserID: selectedWorkerID,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert('Pracownik został dodany do grupy');
+      } else {
+        alert('Nie udało się dodać pracownika do grupy');
+      }
+    } catch (error) {
+      console.error('Błąd podczas dodawania pracownika do grupy:', error);
+      alert('Nie udało się dodać pracownika do grupy');
     }
   };
   // Funkcja do generowania danych wykresu z uwzględnieniem interwału czasowego
@@ -143,6 +220,9 @@ function DeviceList() {
   };
 
   useEffect(() => {
+    if (userID) {
+      fetchIntegratorGroups();
+    }
     const userLogin = localStorage.getItem('userLogin');
     if (userLogin) {
       // Pobieranie informacji o użytkowniku
@@ -178,7 +258,7 @@ function DeviceList() {
           console.error('Błąd przy pobieraniu informacji o użytkowniku', error);
         });
     }
-  }, []);
+  }, [userID]);
 
   const handleLogout = () => {
     localStorage.removeItem('userLogin');
@@ -231,6 +311,14 @@ function DeviceList() {
         >
           Dodaj integratora do grupy
         </button>
+        <button
+          onClick={() => {
+            setShowAddWorkerToGroupForm(!showAddWorkerToGroupForm);
+            fetchWorkers();
+          }}
+        >
+          Dodaj pracownika do grupy
+        </button>
       </div>
 
       <h2 className='title'>LISTA DOSTĘPNYCH URZĄDZEŃ</h2>
@@ -245,6 +333,7 @@ function DeviceList() {
       </div>
       {showAddToIntegratorGroupForm && (
         <div className='add-to-group-form'>
+          {/* Dropdown for selecting an integrator (device) */}
           <select
             value={selectedIntegratorID}
             onChange={(e) => setSelectedIntegratorID(e.target.value)}
@@ -252,18 +341,60 @@ function DeviceList() {
             <option value=''>Wybierz integratora</option>
             {devices.map((device, index) => (
               <option key={index} value={device.PK}>
-                {device.serialNumber}
+                {device.serialNumber} {/* Displaying serial number */}
               </option>
             ))}
           </select>
+
+          {/* Dropdown for selecting a group */}
           <select
             value={selectedGroupID}
             onChange={(e) => setSelectedGroupID(e.target.value)}
           >
             <option value=''>Wybierz grupę</option>
-            {/* Tutaj powinna być lista dostępnych grup */}
+            {integratorGroups.map((group, index) => (
+              <option key={index} value={group.PK}>
+                {group.integratorGroupName} {/* Use integratorGroupName here */}
+              </option>
+            ))}
           </select>
+
           <button onClick={handleAddToIntegratorGroup}>Dodaj do grupy</button>
+        </div>
+      )}
+      {showAddWorkerToGroupForm && (
+        <div className='add-to-group-form'>
+          {/* Dropdown for selecting a worker */}
+          <select
+            value={selectedWorkerID}
+            onChange={(e) => setSelectedWorkerID(e.target.value)}
+          >
+            <option value=''>Wybierz pracownika</option>
+            {workers.map((worker, index) => (
+              <option key={index} value={worker.PK}>
+                {worker.name} {/* Assuming each worker has a 'name' property */}
+              </option>
+            ))}
+          </select>
+
+          {/* Dropdown for selecting a group */}
+          <select
+            value={selectedGroupID}
+            onChange={(e) => setSelectedGroupID(e.target.value)}
+          >
+            <option value=''>Wybierz grupę</option>
+            {integratorGroups.map((group, index) => (
+              <option key={index} value={group.PK}>
+                {group.integratorGroupName}{' '}
+                {/* Assuming each group has an 'integratorGroupName' property */}
+              </option>
+            ))}
+          </select>
+
+          {/* Button to add worker to the selected group (You will need to implement the logic for this) */}
+          <button onClick={handleAddWorkerToGroup}>
+            Dodaj pracownika do grupy
+          </button>
         </div>
       )}
       {showRegisterForm && (

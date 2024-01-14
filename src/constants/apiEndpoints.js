@@ -21,4 +21,7 @@ export const API_ENDPOINTS = {
 
   addIntegratorToGroupEndpoint:
     'https://hw9p0gnhrd.execute-api.eu-central-1.amazonaws.com/prod/integratorGroup',
+
+  getIntegratorGroupEndpoint:
+    'https://hw9p0gnhrd.execute-api.eu-central-1.amazonaws.com/prod/integratorGroup',
 };

@@ -8,7 +8,6 @@ import './DeviceList.css';
 import 'chart.js/auto';
 
 function DeviceList() {
-  const [loadingDetails, setLoadingDetails] = useState({});
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [location, setLocation] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
@@ -28,8 +27,8 @@ function DeviceList() {
   const [selectedWorkerID, setSelectedWorkerID] = useState('');
   const [integratorGroups, setIntegratorGroups] = useState([]);
   const [workers, setWorkers] = useState([]);
-  const [showGroupList, setShowGroupList] = useState(false);
-
+  const [integratorGroupList, setIntegratorGroupList] = useState([]);
+  const [showIntegratorGroupList, setShowIntegratorGroupList] = useState(false);
   // Funkcje, które już są
 
   const fetchWorkers = async () => {
@@ -166,36 +165,71 @@ function DeviceList() {
     }
   };
   // Funkcja do generowania danych wykresu z uwzględnieniem interwału czasowego
-  const generateChartData = (integratorEntries, parameter) => {
-    const intervalHours = {
-      '1h': 1,
-      '4h': 4,
-      '8h': 8,
-      '12h': 12,
-      '24h': 24,
-    };
 
-    const filteredEntries = integratorEntries.filter((entry, index, array) => {
-      return (
-        index % intervalHours[timeInterval] === 0 || index === array.length - 1
-      );
-    });
+  // Funkcja do generowania danych wykresu z uwzględnieniem interwału czasowego
+  const generateChartData = (integratorEntries, parameter) => {
+    let filteredEntries = [];
+    switch (timeInterval) {
+      case 'dzien':
+        filteredEntries = integratorEntries.slice(-1);
+        break;
+      case 'tydzien':
+        filteredEntries = integratorEntries.slice(-7);
+        break;
+      case 'miesiac':
+        filteredEntries = integratorEntries.slice(-30);
+        break;
+      default:
+        filteredEntries = integratorEntries;
+        break;
+    }
+
+    // Generowanie losowego koloru
+    const randomColor = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(
+      Math.random() * 255
+    )}, ${Math.floor(Math.random() * 255)})`;
 
     return {
       labels: filteredEntries.map((entry) =>
-        moment(entry.utcDateTime).format('DD-MM-YYYY HH:mm')
+        moment(entry.utcDateTime).format('DD-MM-YYYY')
       ),
       datasets: [
         {
-          label: `${parameter} over Time`,
+          label: `${parameter.toUpperCase()} over Time`,
           data: filteredEntries.map((entry) => entry[parameter]),
-          borderColor: `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
-            Math.random() * 255
-          })`,
+          borderColor: randomColor,
           tension: 0.1,
         },
       ],
     };
+  };
+
+  // Renderowanie tabeli z danymi statystyk
+  const renderStatsTable = (device) => {
+    let filteredEntries = [];
+    switch (timeInterval) {
+      case 'dzien':
+        filteredEntries = device.IntegratorEntries.slice(-1);
+        break;
+      case 'tydzien':
+        filteredEntries = device.IntegratorEntries.slice(-7);
+        break;
+      case 'miesiac':
+        filteredEntries = device.IntegratorEntries.slice(-30);
+        break;
+      default:
+        filteredEntries = device.IntegratorEntries;
+        break;
+    }
+
+    return filteredEntries.map((entry, i) => (
+      <tr key={i}>
+        <td>{entry.total}</td>
+        <td>{entry.rate}</td>
+        <td>{entry.speed}</td>
+        <td>{moment.utc(entry.utcDateTime).format('DD-MM-YYYY')}</td>
+      </tr>
+    ));
   };
   // Funkcja do zmiany prędkości (speed)
   const handleChangeSpeed = (devicePK) => {
@@ -468,8 +502,7 @@ function DeviceList() {
                         >
                           <option value='dzien'>dzień</option>
                           <option value='tydzien'>tydzień</option>
-                          <option value='miesiac'>miesiąć</option>
-                          <option value='rok'>rok</option>
+                          <option value='miesiac'>miesiąc</option>
                         </select>
                       </div>
                       <div className='speed-change-button'>
@@ -488,20 +521,7 @@ function DeviceList() {
                           <th>Time</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        {device.IntegratorEntries.map((entry, i) => (
-                          <tr key={i}>
-                            <td>{entry.total}</td>
-                            <td>{entry.rate}</td>
-                            <td>{entry.speed}</td>
-                            <td>
-                              {moment
-                                .utc(entry.utcDateTime)
-                                .format('DD-MM-YYYY')}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
+                      <tbody>{renderStatsTable(device)}</tbody>
                     </table>
                     <div>
                       <h4>Wykresy czasowe:</h4>

@@ -28,13 +28,14 @@ function DeviceList() {
   const [selectedWorkerID, setSelectedWorkerID] = useState('');
   const [integratorGroups, setIntegratorGroups] = useState([]);
   const [workers, setWorkers] = useState([]);
+  const [showGroupList, setShowGroupList] = useState(false);
 
   // Funkcje, które już są
 
   const fetchWorkers = async () => {
     try {
       const response = await axios.get(API_ENDPOINTS.getWorkersEndpoint, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { from: userID, 'Content-Type': 'application/json' },
       });
       if (response.status === 200 && response.data.workers) {
         setWorkers(response.data.workers);
@@ -465,16 +466,15 @@ function DeviceList() {
                           value={timeInterval}
                           onChange={(e) => setTimeInterval(e.target.value)}
                         >
-                          <option value='1h'>1 godzina</option>
-                          <option value='4h'>4 godziny</option>
-                          <option value='8h'>8 godzin</option>
-                          <option value='12h'>12 godzin</option>
-                          <option value='24h'>24 godziny</option>
+                          <option value='dzien'>dzień</option>
+                          <option value='tydzien'>tydzień</option>
+                          <option value='miesiac'>miesiąć</option>
+                          <option value='rok'>rok</option>
                         </select>
                       </div>
                       <div className='speed-change-button'>
                         <button onClick={() => handleChangeSpeed(device.PK)}>
-                          Zmień Speed
+                          Zmień Prędkość
                         </button>
                       </div>
                     </div>
@@ -495,9 +495,9 @@ function DeviceList() {
                             <td>{entry.rate}</td>
                             <td>{entry.speed}</td>
                             <td>
-                              {moment(entry.utcDateTime).format(
-                                'DD-MM-YYYY HH:mm'
-                              )}
+                              {moment
+                                .utc(entry.utcDateTime)
+                                .format('DD-MM-YYYY')}
                             </td>
                           </tr>
                         ))}

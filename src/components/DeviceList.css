@@ -1,34 +1,34 @@
+/* Main Container Styling */
 .device-list-container {
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #f4f4f4;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Title Styling */
 .title {
   text-align: center;
   text-transform: uppercase;
   color: #333;
   margin-bottom: 30px;
-  font-size: 1.5em;
+  font-size: 1.8em;
+  letter-spacing: 1px;
 }
 
+/* User Info Styling */
 .user-info {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   margin-bottom: 20px;
-}
-
-.user-info span {
-  margin-right: 15px;
   font-size: 1em;
   color: #555;
 }
 
+/* User Info Button Styling */
 .user-info button {
-  background-color: #e53935;
+  background-color: #4caf50;
   color: white;
   border: none;
   padding: 10px 18px;
@@ -42,9 +42,10 @@
 }
 
 .user-info button:hover {
-  background-color: #d32f2f;
+  background-color: #388e3c;
 }
 
+/* Form Styling */
 .register-form,
 .create-group-form,
 .add-to-group-form {
@@ -63,8 +64,10 @@
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  width: 80%;
 }
 
+/* Control Buttons Styling */
 .control-buttons {
   text-align: center;
   margin-bottom: 30px;
@@ -86,41 +89,8 @@
   background-color: #1565c0;
 }
 
-.device-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.device-table th,
-.device-table td {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-}
-
-.device-table th {
-  background-color: #e3f2fd;
-  color: #333;
-}
-
-.device-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.stats-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.stats-options .interval-selector,
-.stats-options .speed-change-button {
-  margin: 0 10px;
-}
-
+/* Table Styling */
+.device-table,
 .stats-table {
   width: 100%;
   margin-top: 20px;
@@ -128,17 +98,27 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.device-table th,
+.device-table td,
 .stats-table th,
 .stats-table td {
-  padding: 10px;
+  text-align: left;
+  padding: 12px;
   border-bottom: 1px solid #ddd;
 }
 
+.device-table th,
 .stats-table th {
-  background-color: #e8f5e9;
+  background-color: #e3f2fd;
   color: #333;
 }
 
+.device-table tr:nth-child(even),
+.stats-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* More Button Styling */
 .more-button {
   background-color: #ff9800;
   color: white;
@@ -154,6 +134,7 @@
   background-color: #fb8c00;
 }
 
+/* Responsive Design */
 @media screen and (max-width: 768px) {
   .user-info,
   .control-buttons,
@@ -174,4 +155,63 @@
   .add-to-group-form select {
     width: 100%;
   }
+
+  .device-table,
+  .stats-table {
+    width: 100%;
+  }
+}
+.group-details {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.group-detail-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #eef2f5;
+  border-radius: 6px;
+}
+
+.group-name {
+  color: #333;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.group-section {
+  margin-top: 10px;
+}
+
+.integrator-list,
+.worker-list {
+  list-style: none;
+  padding: 0;
+}
+
+.integrator-item,
+.worker-item {
+  background-color: #f7f9fb;
+  margin: 5px 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.register-button {
+  display: block; /* Ensures the button takes its own line */
+  width: 100%; /* Full width for better mobile responsiveness */
+  padding: 10px 0;
+  margin-top: 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+.register-button:hover {
+  background-color: #388e3c; /* Darker shade on hover for a subtle effect */
 }

@@ -27,8 +27,15 @@ function DeviceList() {
   const [selectedWorkerID, setSelectedWorkerID] = useState('');
   const [integratorGroups, setIntegratorGroups] = useState([]);
   const [workers, setWorkers] = useState([]);
-  const [integratorGroupList, setIntegratorGroupList] = useState([]);
-  const [showIntegratorGroupList, setShowIntegratorGroupList] = useState(false);
+  const [integratorGroupsData, setIntegratorGroupsData] = useState([]);
+  const [usersData, setUsersData] = useState([]);
+  const [showGroups, setShowGroups] = useState(false);
+  const [groupDetails, setGroupDetails] = useState([]);
+  const [showGroupDetails, setShowGroupDetails] = useState(false);
+  const [userRole, setUserRole] = useState({
+    isManager: false,
+    isService: false,
+  });
   // Funkcje, które już są
 
   const fetchWorkers = async () => {
@@ -133,6 +140,7 @@ function DeviceList() {
       alert('Nie udało się dodać integratora do grupy');
     }
   };
+
   const handleAddWorkerToGroup = async () => {
     if (!selectedWorkerID || !selectedGroupID) {
       alert('Proszę wybrać pracownika i grupę');
@@ -253,10 +261,30 @@ function DeviceList() {
     });
     setDevices(updatedDevices);
   };
+  const loadAndShowGroups = async () => {
+    const processedGroups = integratorGroups.map((group) => {
+      const integratorsInGroup = devices.filter(
+        (device) => device.integratorGroup === group.PK
+      );
+      const workersInGroup = workers.filter((worker) =>
+        worker.integratorGroups.includes(group.PK)
+      );
+
+      return {
+        ...group,
+        integrators: integratorsInGroup,
+        workers: workersInGroup,
+      };
+    });
+
+    setGroupDetails(processedGroups);
+    setShowGroupDetails(true);
+  };
 
   useEffect(() => {
     if (userID) {
       fetchIntegratorGroups();
+      fetchWorkers();
     }
     const userLogin = localStorage.getItem('userLogin');
     if (userLogin) {
@@ -299,7 +327,14 @@ function DeviceList() {
     localStorage.removeItem('userLogin');
     navigate('/');
   };
-
+  const toggleGroupDetails = async () => {
+    if (showGroupDetails) {
+      setShowGroupDetails(false);
+    } else {
+      await fetchWorkers();
+      loadAndShowGroups();
+    }
+  };
   const handleRegisterDevice = async () => {
     if (!userID) {
       console.error('UserID jest nieustawione.');
@@ -335,7 +370,6 @@ function DeviceList() {
         <button onClick={() => setShowRegisterForm(!showRegisterForm)}>
           Zarejestruj urządzenie
         </button>
-        <button onClick={handleManageIntegrators}>Statystyki</button>
         <button onClick={() => setShowCreateGroupForm(!showCreateGroupForm)}>
           Stwórz grupę
         </button>
@@ -353,6 +387,9 @@ function DeviceList() {
           }}
         >
           Dodaj pracownika do grupy
+        </button>
+        <button onClick={toggleGroupDetails} className='group-details-button'>
+          Wyświetl grupy
         </button>
       </div>
 
@@ -432,14 +469,9 @@ function DeviceList() {
           </button>
         </div>
       )}
+
       {showRegisterForm && (
         <div className='register-form'>
-          <input
-            type='text'
-            placeholder='Nazwa urządzenia'
-            value={deviceName}
-            onChange={(e) => setDeviceName(e.target.value)}
-          />
           <input
             type='text'
             placeholder='Lokalizacja'
@@ -452,9 +484,12 @@ function DeviceList() {
             value={serialNumber}
             onChange={(e) => setSerialNumber(e.target.value)}
           />
-          <button onClick={handleRegisterDevice}>Zarejestruj</button>
+          <button onClick={handleRegisterDevice} className='register-button'>
+            Zarejestruj
+          </button>
         </div>
       )}
+
       {showCreateGroupForm && (
         <div className='create-group-form'>
           <input
@@ -466,6 +501,40 @@ function DeviceList() {
           <button onClick={handleCreateGroup}>Utwórz grupę</button>
         </div>
       )}
+      {showGroupDetails && (
+        <div className='group-details'>
+          {groupDetails.map((group, index) => (
+            <div
+              key={index}
+              className='group-detail-item
+'
+            >
+              <h3 className='group-name'>{group.integratorGroupName}</h3>
+              <div className='group-section'>
+                <strong>Integratory:</strong>
+                <ul className='integrator-list'>
+                  {group.integrators.map((integrator, idx) => (
+                    <li key={idx} className='integrator-item'>
+                      {integrator.serialNumber} - {integrator.location}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className='group-section'>
+                <strong>Pracownicy:</strong>
+                <ul className='worker-list'>
+                  {group.workers.map((worker, idx) => (
+                    <li key={idx} className='worker-item'>
+                      {worker.name} {worker.surname}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <table className='device-table'>
         <thead>
           <tr>

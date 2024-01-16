@@ -27,15 +27,10 @@ function DeviceList() {
   const [selectedWorkerID, setSelectedWorkerID] = useState('');
   const [integratorGroups, setIntegratorGroups] = useState([]);
   const [workers, setWorkers] = useState([]);
-  const [integratorGroupsData, setIntegratorGroupsData] = useState([]);
-  const [usersData, setUsersData] = useState([]);
-  const [showGroups, setShowGroups] = useState(false);
   const [groupDetails, setGroupDetails] = useState([]);
   const [showGroupDetails, setShowGroupDetails] = useState(false);
-  const [userRole, setUserRole] = useState({
-    isManager: false,
-    isService: false,
-  });
+  const [isManager, setIsManager] = useState(false);
+  const [isService, setIsService] = useState(false);
   // Funkcje, które już są
 
   const fetchWorkers = async () => {
@@ -282,45 +277,45 @@ function DeviceList() {
   };
 
   useEffect(() => {
-    if (userID) {
-      fetchIntegratorGroups();
-      fetchWorkers();
-    }
-    const userLogin = localStorage.getItem('userLogin');
-    if (userLogin) {
-      // Pobieranie informacji o użytkowniku
-      axios
-        .get(API_ENDPOINTS.getUserEndpoint, {
-          headers: { From: userLogin, 'Content-Type': 'application/json' },
-        })
-        .then((response) => {
-          const userData = response.data.user;
-          setUserID(userData.PK);
+    const fetchUserDataAndDevices = async () => {
+      if (userID) {
+        await fetchIntegratorGroups();
+        await fetchWorkers();
+      }
 
-          // Pobieranie listy kruszarek na podstawie loginu użytkownika
-          axios
-            .get(`${API_ENDPOINTS.getIntegrator}?login=${userLogin}`, {
+      const userLogin = localStorage.getItem('userLogin');
+      if (userLogin) {
+        try {
+          const userResponse = await axios.get(API_ENDPOINTS.getUserEndpoint, {
+            headers: { From: userLogin, 'Content-Type': 'application/json' },
+          });
+          const userData = userResponse.data.user;
+          setUserID(userData.PK);
+          setIsManager(userData.role.isManager);
+          setIsService(userData.role.isService);
+
+          const devicesResponse = await axios.get(
+            `${API_ENDPOINTS.getIntegrator}?login=${userLogin}`,
+            {
               headers: { From: userLogin, 'Content-Type': 'application/json' },
-            })
-            .then((response) => {
-              setDevices(response.data.integrators);
-              const updatedDevices = response.data.integrators.map(
-                (device) => ({
-                  ...device,
-                  showStats: false, // Dodaj flagę do każdego obiektu
-                })
-              );
-              setDevices(updatedDevices);
-              // Ustawienie stanu devices na podstawie odpowiedzi z API
-            })
-            .catch((error) => {
-              console.error('Błąd przy pobieraniu listy kruszarek', error);
-            });
-        })
-        .catch((error) => {
-          console.error('Błąd przy pobieraniu informacji o użytkowniku', error);
-        });
-    }
+            }
+          );
+          setDevices(
+            devicesResponse.data.integrators.map((device) => ({
+              ...device,
+              showStats: false,
+            }))
+          );
+        } catch (error) {
+          console.error(
+            'Błąd przy pobieraniu danych użytkownika lub urządzeń',
+            error
+          );
+        }
+      }
+    };
+
+    fetchUserDataAndDevices();
   }, [userID]);
 
   const handleLogout = () => {
@@ -366,33 +361,36 @@ function DeviceList() {
   };
   return (
     <div className='device-list-container'>
-      <div className='control-buttons'>
-        <button onClick={() => setShowRegisterForm(!showRegisterForm)}>
-          Zarejestruj urządzenie
-        </button>
-        <button onClick={() => setShowCreateGroupForm(!showCreateGroupForm)}>
-          Stwórz grupę
-        </button>
-        <button
-          onClick={() =>
-            setShowAddToIntegratorGroupForm(!showAddToIntegratorGroupForm)
-          }
-        >
-          Dodaj integratora do grupy
-        </button>
-        <button
-          onClick={() => {
-            setShowAddWorkerToGroupForm(!showAddWorkerToGroupForm);
-            fetchWorkers();
-          }}
-        >
-          Dodaj pracownika do grupy
-        </button>
-        <button onClick={toggleGroupDetails} className='group-details-button'>
-          Wyświetl grupy
-        </button>
-      </div>
-
+      {/* Renderuj przyciski tylko dla menedżerów i serwisantów */}
+      {(isManager || isService) && (
+        <div className='control-buttons'>
+          <button onClick={() => setShowRegisterForm(!showRegisterForm)}>
+            Zarejestruj urządzenie
+          </button>
+          <button onClick={() => setShowCreateGroupForm(!showCreateGroupForm)}>
+            Stwórz grupę
+          </button>
+          <button
+            onClick={() =>
+              setShowAddToIntegratorGroupForm(!showAddToIntegratorGroupForm)
+            }
+          >
+            Dodaj integratora do grupy
+          </button>
+          <button
+            onClick={() => {
+              setShowAddWorkerToGroupForm(!showAddWorkerToGroupForm);
+              fetchWorkers();
+            }}
+          >
+            Dodaj pracownika do grupy
+          </button>
+          <button onClick={toggleGroupDetails} className='group-details-button'>
+            Wyświetl grupy
+          </button>
+        </div>
+      )}
+      {/* Lista dostępnych urządzeń, widoczna dla wszystkich użytkowników */}
       <h2 className='title'>LISTA DOSTĘPNYCH URZĄDZEŃ</h2>
 
       <div className='user-info'>

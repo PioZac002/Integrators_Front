@@ -1,3 +1,49 @@
+body {
+  font-family: 'lato', sans-serif;
+}
+/* 
+.container {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+} */
+
+h2 {
+  font-size: 26px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+h2 small {
+  font-size: 0.5em;
+}
+
+.statsButton {
+  display: inline-block;
+  outline: 0;
+  appearance: none;
+  padding: 0px 12px;
+  border: 0px solid transparent;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: rgb(9, 128, 76);
+  box-shadow: rgb(19 170 82 / 40%) 0px 2px 3px;
+  color: rgb(255, 255, 255);
+  font-size: 14px;
+  font-weight: 400;
+  height: 36px;
+  transition: all 150ms ease-in-out 0s;
+  :hover {
+    color: rgb(255, 255, 255);
+    background-color: rgb(17, 97, 73);
+    box-shadow: rgb(19 170 82 / 40%) 0px 2px 3px,
+      rgb(195 231 202) 0px 0px 0px 3px;
+  }
+  margin-left: 10px;
+}
 /* Main Container Styling */
 .device-list-container {
   padding: 20px;
@@ -28,21 +74,26 @@
 
 /* User Info Button Styling */
 .user-info button {
-  background-color: #4caf50;
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 20px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 0.9em;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.5s;
+  margin: 10px;
+  background: #f10842;
+  line-height: 1.15;
+  font-size: 16px;
 }
 
 .user-info button:hover {
-  background-color: #388e3c;
+  background-color: #8f0606;
+  transition: all 0.5s ease;
+  box-shadow: 0 0 0 0 #fff, 0 0 0 3px #ec0b16;
 }
 
 /* Form Styling */
@@ -71,6 +122,11 @@
 .control-buttons {
   text-align: center;
   margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
 }
 
 .control-buttons button {
@@ -86,53 +142,26 @@
 }
 
 .control-buttons button:hover {
-  background-color: #1565c0;
+  background-color: #1520c0;
+}
+.stats-options {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically on smaller screens */
+}
+
+@media screen and (max-width: 768px) {
+  .stats-options > * {
+    width: 100%; /* Full width for each control */
+    margin-bottom: 10px; /* Space out the controls */
+  }
+}
+.stats-chart-container {
+  width: 100%; /* Adjust as necessary */
 }
 
 /* Table Styling */
-.device-table,
-.stats-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.device-table th,
-.device-table td,
-.stats-table th,
-.stats-table td {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-}
-
-.device-table th,
-.stats-table th {
-  background-color: #e3f2fd;
-  color: #333;
-}
-
-.device-table tr:nth-child(even),
-.stats-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
 
 /* More Button Styling */
-.more-button {
-  background-color: #ff9800;
-  color: white;
-  padding: 8px 16px;
-  text-decoration: none;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.more-button:hover {
-  background-color: #fb8c00;
-}
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
@@ -204,7 +233,7 @@
   width: 100%; /* Full width for better mobile responsiveness */
   padding: 10px 0;
   margin-top: 15px;
-  background-color: #4caf50;
+  background-color: #1e88e5;
   color: white;
   border: none;
   border-radius: 4px;
@@ -213,5 +242,5 @@
   transition: background-color 0.3s;
 }
 .register-button:hover {
-  background-color: #388e3c; /* Darker shade on hover for a subtle effect */
+  background-color: #056fac; /* Darker shade on hover for a subtle effect */
 }

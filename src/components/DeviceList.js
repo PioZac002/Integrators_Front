@@ -323,12 +323,42 @@ function DeviceList() {
     navigate('/');
   };
   const toggleGroupDetails = async () => {
-    if (showGroupDetails) {
-      setShowGroupDetails(false);
-    } else {
-      await fetchWorkers();
-      loadAndShowGroups();
+    if (!showGroupDetails) {
+      try {
+        // Pobieranie danych grup
+        const response = await axios.get(
+          API_ENDPOINTS.getIntegratorGroupEndpoint,
+          {
+            headers: { From: userID, 'Content-Type': 'application/json' },
+          }
+        );
+        if (response.status === 200 && response.data.integratorGroups) {
+          setIntegratorGroups(response.data.integratorGroups);
+
+          // Przetwarzanie grup
+          const processedGroups = response.data.integratorGroups.map(
+            (group) => {
+              const integratorsInGroup = devices.filter(
+                (device) => device.integratorGroup === group.PK
+              );
+              const workersInGroup = workers.filter((worker) =>
+                worker.integratorGroups.includes(group.PK)
+              );
+              return {
+                ...group,
+                integrators: integratorsInGroup,
+                workers: workersInGroup,
+              };
+            }
+          );
+
+          setGroupDetails(processedGroups);
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania grup integratorów:', error);
+      }
     }
+    setShowGroupDetails(!showGroupDetails);
   };
   const handleRegisterDevice = async () => {
     if (!userID) {
@@ -361,6 +391,17 @@ function DeviceList() {
   };
   return (
     <div className='device-list-container'>
+      {' '}
+      <div className='user-info'>
+        {localStorage.getItem('userLogin') && (
+          <>
+            <span>Zalogowany jako: {localStorage.getItem('userLogin')}</span>
+            <button className='wyloguj' onClick={handleLogout}>
+              Wyloguj
+            </button>
+          </>
+        )}
+      </div>
       {/* Renderuj przyciski tylko dla menedżerów i serwisantów */}
       {(isManager || isService) && (
         <div className='control-buttons'>
@@ -392,15 +433,6 @@ function DeviceList() {
       )}
       {/* Lista dostępnych urządzeń, widoczna dla wszystkich użytkowników */}
       <h2 className='title'>LISTA DOSTĘPNYCH URZĄDZEŃ</h2>
-
-      <div className='user-info'>
-        {localStorage.getItem('userLogin') && (
-          <>
-            <span>Zalogowany jako: {localStorage.getItem('userLogin')}</span>
-            <button onClick={handleLogout}>Wyloguj</button>
-          </>
-        )}
-      </div>
       {showAddToIntegratorGroupForm && (
         <div className='add-to-group-form'>
           {/* Dropdown for selecting an integrator (device) */}
@@ -467,7 +499,6 @@ function DeviceList() {
           </button>
         </div>
       )}
-
       {showRegisterForm && (
         <div className='register-form'>
           <input
@@ -487,7 +518,6 @@ function DeviceList() {
           </button>
         </div>
       )}
-
       {showCreateGroupForm && (
         <div className='create-group-form'>
           <input
@@ -532,8 +562,7 @@ function DeviceList() {
           ))}
         </div>
       )}
-
-      <table className='device-table'>
+      <table className='responsive-table'>
         <thead>
           <tr>
             <th>SERIAL NUMBER</th>
@@ -551,12 +580,17 @@ function DeviceList() {
                   <Link to={`/crusher/${device.PK}`} className='more-button'>
                     Więcej
                   </Link>
-                  <button onClick={() => toggleStats(device.PK)}>Stats</button>
+                  <button
+                    className='statsButton'
+                    onClick={() => toggleStats(device.PK)}
+                  >
+                    Stats
+                  </button>
                 </td>
               </tr>
               {device.showStats && (
                 <tr>
-                  <td colSpan='3'>
+                  <td className='crusher-container' colSpan='3'>
                     <div className='stats-options'>
                       <div className='interval-selector'>
                         <label htmlFor='interval-select'>
@@ -590,25 +624,28 @@ function DeviceList() {
                       </thead>
                       <tbody>{renderStatsTable(device)}</tbody>
                     </table>
-                    <div>
+                    <div id='chartContainer'>
                       <h4>Wykresy czasowe:</h4>
                       <Line
                         data={generateChartData(
                           device.IntegratorEntries,
                           'total'
                         )}
+                        options={{ responsive: true }}
                       />
                       <Line
                         data={generateChartData(
                           device.IntegratorEntries,
                           'rate'
                         )}
+                        options={{ responsive: true }}
                       />
                       <Line
                         data={generateChartData(
                           device.IntegratorEntries,
                           'speed'
                         )}
+                        options={{ responsive: true }}
                       />
                     </div>
                     <button onClick={() => handleChangeSpeed(device.PK)}>
